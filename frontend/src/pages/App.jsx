@@ -1,0 +1,223 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { AuthProvider, useAuth } from '../context/AuthContext';
+import { useApi } from '../hooks/useApi';
+import { Header, Hero, Institutional, Services, Process, TeamSection, ContactSection, Footer } from '../components/LandingSections';
+import { LoginModal } from '../components/LoginModal';
+import { TestWizard } from '../components/TestWizard';
+import { PatientDashboard, SpecialistDashboard } from '../components/Dashboards';
+
+const DashboardArea = ({ cpf, role }) => (
+  <div id="dashboard">
+    {role === 'responsavel' && <PatientDashboard cpf={cpf} />}
+    {role === 'especialista' && <SpecialistDashboard />}
+  </div>
+);
+
+const AppContent = () => {
+  const { token, profile, setToken, setProfile } = useAuth();
+  const api = useApi();
+  const [showLogin, setShowLogin] = useState(false);
+  const [cpfSelecionado, setCpfSelecionado] = useState('');
+  const [testFlowActive, setTestFlowActive] = useState(false);
+  const [testResult, setTestResult] = useState(null);
+  const [testadoForm, setTestadoForm] = useState({
+    nome_completo: '',
+    documento_cpf: '',
+    regiao_bairro: '',
+    contato_telefone: '',
+    contato_email: '',
+    consentimento_pesquisa: false
+  });
+
+  const isAuthenticated = Boolean(token);
+
+  const educationalLinks = useMemo(() => ([
+    { label: 'Guia TEA Ministério da Saúde', href: 'https://www.gov.br/saude/pt-br/assuntos/autismo' },
+    { label: 'ADOS-2 - Pearson', href: 'https://www.pearsonassessments.com' },
+    { label: 'ADI-R - WPS', href: 'https://www.wpspublish.com/adi-r-autism-diagnostic-interview-revised.html' }
+  ]), []);
+
+  const handleLogout = () => {
+    setToken(null);
+    setProfile(null);
+  };
+
+  const handleStartTest = () => {
+    if (!cpfSelecionado) return;
+    setTestFlowActive(true);
+    setTestResult(null);
+  };
+
+  const handleTestFinish = (result) => {
+    setTestResult(result);
+    setTestFlowActive(false);
+  };
+
+  const registerTestado = useMutation({
+    mutationFn: async () => {
+      await api.post('/api/v1/tests/testados', {
+        ...testadoForm,
+        consentimento_pesquisa: Boolean(testadoForm.consentimento_pesquisa)
+      });
+    },
+    onSuccess: () => {
+      setCpfSelecionado(testadoForm.documento_cpf);
+    }
+  });
+
+  const formComplete = useMemo(
+    () =>
+      Boolean(
+        testadoForm.nome_completo &&
+          testadoForm.documento_cpf &&
+          testadoForm.regiao_bairro &&
+          testadoForm.contato_telefone &&
+          testadoForm.contato_email
+      ),
+    [testadoForm]
+  );
+
+  useEffect(() => {
+    registerTestado.reset();
+  }, [testadoForm.documento_cpf]);
+
+  return (
+    <>
+      <Header
+        onLoginClick={() => setShowLogin(true)}
+        isAuthenticated={isAuthenticated}
+        role={profile?.role}
+        onLogout={handleLogout}
+      />
+      <Hero />
+      <section className="section" id="educacao">
+        <div className="container">
+          <h2 className="section-title">Conteúdos educativos</h2>
+          <p className="section-subtitle">Estudos, artigos e protocolos de referência mundial sobre TEA.</p>
+          <div className="grid cards-grid">
+            {educationalLinks.map((item) => (
+              <article key={item.href} className="card">
+                <h3>{item.label}</h3>
+                <p style={{ marginTop: '0.75rem', lineHeight: 1.6 }}>
+                  Conheça materiais aprofundados para compreender o espectro autista, protocolos ADOS-2 e ADI-R e orientações para famílias.
+                </p>
+                <a className="btn btn-primary" href={item.href} target="_blank" rel="noreferrer">
+                  Acessar recurso
+                </a>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+      <Institutional />
+      <Services />
+      <Process />
+      <TeamSection />
+
+      {isAuthenticated && profile?.role === 'responsavel' && (
+        <section className="section" id="testes">
+          <div className="container">
+            <h2 className="section-title">Triagens disponíveis</h2>
+            <p className="section-subtitle">Selecione o CPF do avaliado e escolha um dos protocolos M-CHAT-R/F, ASSQ ou AQ-10.</p>
+            <div className="card" style={{ display: 'grid', gap: '1rem', marginBottom: '2rem' }}>
+              <h3>Cadastro do avaliado</h3>
+              <p style={{ lineHeight: 1.6 }}>
+                Preencha os dados do avaliado antes de iniciar a triagem. O CPF é usado para garantir a regra de unicidade por teste.
+              </p>
+              <div className="grid" style={{ gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+                <div className="form-group">
+                  <label htmlFor="nome-completo">Nome completo</label>
+                  <input id="nome-completo" type="text" value={testadoForm.nome_completo} onChange={(event) => setTestadoForm((prev) => ({ ...prev, nome_completo: event.target.value }))} />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="cpf-form">CPF</label>
+                  <input id="cpf-form" type="text" value={testadoForm.documento_cpf} onChange={(event) => {
+                    const value = event.target.value;
+                    setTestadoForm((prev) => ({ ...prev, documento_cpf: value }));
+                    setCpfSelecionado(value);
+                  }} />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="bairro">Região/Bairro</label>
+                  <input id="bairro" type="text" value={testadoForm.regiao_bairro} onChange={(event) => setTestadoForm((prev) => ({ ...prev, regiao_bairro: event.target.value }))} />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="telefone">Telefone</label>
+                  <input id="telefone" type="tel" value={testadoForm.contato_telefone} onChange={(event) => setTestadoForm((prev) => ({ ...prev, contato_telefone: event.target.value }))} />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="email-contato">E-mail</label>
+                  <input id="email-contato" type="email" value={testadoForm.contato_email} onChange={(event) => setTestadoForm((prev) => ({ ...prev, contato_email: event.target.value }))} />
+                </div>
+              </div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input type="checkbox" checked={testadoForm.consentimento_pesquisa} onChange={(event) => setTestadoForm((prev) => ({ ...prev, consentimento_pesquisa: event.target.checked }))} />
+                Autorizo o uso anonimizado dos dados para pesquisa.
+              </label>
+              <button className="btn btn-outline" type="button" onClick={() => registerTestado.mutate()} disabled={registerTestado.isLoading || !formComplete}>
+                {registerTestado.isLoading ? 'Salvando...' : formComplete ? 'Salvar dados do avaliado' : 'Preencha todos os campos'}
+              </button>
+              {registerTestado.isSuccess && <div className="alert alert-success">Cadastro realizado com sucesso!</div>}
+              {registerTestado.isError && <div className="alert alert-error">Não foi possível cadastrar este CPF.</div>}
+            </div>
+            <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="form-group">
+                <label htmlFor="cpf-testado">CPF do avaliado</label>
+                <input id="cpf-testado" type="text" value={cpfSelecionado} onChange={(event) => setCpfSelecionado(event.target.value)} placeholder="000.000.000-00" />
+              </div>
+              <button className="btn btn-primary" type="button" onClick={handleStartTest} disabled={!cpfSelecionado}>
+                Iniciar triagem
+              </button>
+              {testResult && (
+                <div className="alert alert-success">
+                  Resultado registrado! Classificação: {testResult.classificacao} • Pontuação: {testResult.score}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {testFlowActive && <TestWizard cpf={cpfSelecionado} onClose={handleTestFinish} />}
+
+      <section className="section" id="importacao">
+        <div className="container">
+          <h2 className="section-title">Importação de dados</h2>
+          <p className="section-subtitle">Envie planilhas para visualizar dashboards interativas de indicadores TEA.</p>
+          <div className="grid cards-grid">
+            <article className="card">
+              <h3>Responsáveis</h3>
+              <p style={{ margin: '0.75rem 0', lineHeight: 1.6 }}>
+                Faça upload de planilhas Excel com hábitos, rotinas ou evolução da criança para gerar gráficos personalizados.
+              </p>
+              <input type="file" accept=".xlsx,.xls,.csv" />
+            </article>
+            <article className="card">
+              <h3>Especialistas</h3>
+              <p style={{ margin: '0.75rem 0', lineHeight: 1.6 }}>
+                Combine dados internos com bases do IBGE para análises geográficas, dashboards de barras e mapas temáticos.
+              </p>
+              <input type="file" accept=".xlsx,.xls,.csv" />
+            </article>
+          </div>
+        </div>
+      </section>
+
+      {isAuthenticated && <DashboardArea cpf={profile?.role === 'responsavel' ? cpfSelecionado : undefined} role={profile?.role} />}
+
+      <ContactSection />
+      <Footer />
+
+      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
+    </>
+  );
+};
+
+const App = () => (
+  <AuthProvider>
+    <AppContent />
+  </AuthProvider>
+);
+
+export default App;
