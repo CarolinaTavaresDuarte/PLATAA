@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
 
 const services = [
   {
@@ -10,9 +10,9 @@ const services = [
   },
   {
     icon: '📋',
-    title: 'ASSQ e AQ-10',
+    title: 'ASSQ (6 a 17 anos)',
     description:
-      'Questionários para crianças, adolescentes e adultos, com perguntas de baixo estímulo visual.',
+      'Questionário de triagem para crianças e adolescentes, com perguntas simples e de baixo estímulo visual voltadas a comportamento social e comunicação.',
     href: '/services/test/assq',
   },
   {
@@ -259,30 +259,239 @@ export const Institutional = () => (
   </section>
 );
 
-export const Services = () => (
-  <section className="section" id="servicos" style={{ backgroundColor: '#f8f9fa' }}>
-    <div className="container">
-      <h2 className="section-title">Triagem especializada</h2>
-      <p className="section-subtitle">
-        Cards interativos com os principais protocolos de triagem oferecidos pela PLATAA.
-      </p>
-      <div className="grid cards-grid">
-        {services.map((service) => (
-          <article key={service.title} className="card card--service">
-            <div className="card-icon" aria-hidden="true">
-              {service.icon}
+
+const TEST_INFO = {
+  mchat: {
+    title: "🧩 M-CHAT-R/F (16 a 30 meses)",
+    body: (
+      <>
+        <p>
+          O <strong>M-CHAT-R/F</strong> é um questionário de triagem precoce
+          desenvolvido para identificar sinais de risco para TEA em crianças de
+          16 a 30 meses. Ajuda pais/cuidadores a observar atenção conjunta,
+          contato visual, linguagem e comportamentos motores.
+        </p>
+        <h4 className="mt-2">Como funciona</h4>
+        <ul>
+          <li>O responsável responde a perguntas simples sobre a criança.</li>
+          <li>O resultado indica baixo, médio ou alto risco de TEA.</li>
+          <li>
+            Em risco elevado, recomenda-se buscar avaliação com profissional de
+            saúde/desenvolvimento infantil.
+          </li>
+        </ul>
+        <p className="mt-2">
+          <em>
+            Importante: o M-CHAT-R/F não define diagnóstico, mas é uma
+            ferramenta validada cientificamente para identificação precoce e
+            encaminhamento.
+          </em>
+        </p>
+        <p className="text-sm opacity-80 mt-2">
+          🔗 Fonte: Robins, Fein &amp; Barton, 2009 — M-CHAT-R/F.
+        </p>
+      </>
+    ),
+  },
+  assq: {
+    title: "📋 ASSQ (6 a 17 anos)",
+    body: (
+      <>
+        <p>
+          O <strong>ASSQ</strong> é um instrumento de triagem para crianças e
+          adolescentes com dificuldades sociais, de comunicação ou comportamentos
+          repetitivos. Útil especialmente em casos de autismo leve/alto
+          funcionamento.
+        </p>
+        <h4 className="mt-2">Como funciona</h4>
+        <ul>
+          <li>27 perguntas sobre relações sociais, linguagem e interesses.</li>
+          <li>Pode ser preenchido por pais, professores ou cuidadores.</li>
+          <li>
+            O resultado indica se há indícios que justificam avaliação
+            profissional.
+          </li>
+        </ul>
+        <p className="mt-2">
+          <em>
+            Importante: é um rastreio, não um diagnóstico. Orienta famílias e
+            escolas sobre a necessidade de acompanhamento clínico.
+          </em>
+        </p>
+        <p className="text-sm opacity-80 mt-2">
+          🔗 Fonte: Ehlers et al., 1999 — ASSQ.
+        </p>
+      </>
+    ),
+  },
+  aq10: {
+    title: "🧠 AQ-10 (Adultos)",
+    body: (
+      <>
+        <p>
+          O <strong>AQ-10</strong> é uma versão curta do Autism-Spectrum
+          Quotient para triagem rápida de <em>traços autísticos</em> em adultos,
+          especialmente com linguagem preservada e boa adaptação social.
+        </p>
+        <h4 className="mt-2">Como funciona</h4>
+        <ul>
+          <li>10 perguntas objetivas (interesse social, empatia, rotina etc.).</li>
+          <li>
+            Indica se há características que merecem avaliação mais aprofundada.
+          </li>
+        </ul>
+        <p className="mt-2">
+          <em>
+            Importante: não substitui consulta diagnóstica; é um primeiro passo
+            para autoconhecimento e encaminhamento adequado.
+          </em>
+        </p>
+        <p className="text-sm opacity-80 mt-2">
+          🔗 Fonte: Allison et al., 2012 — AQ-10.
+        </p>
+      </>
+    ),
+  },
+};
+
+export const Services = () => {
+  const [openKey, setOpenKey] = useState(null);
+
+  // fecha com Esc
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && setOpenKey(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  return (
+    <section className="section" id="servicos">
+      <div className="container">
+        <h2 className="section-title">Triagem especializada</h2>
+        <p className="section-subtitle">
+          Cards interativos com os principais protocolos de triagem oferecidos
+          pela PLATAA.
+        </p>
+
+        <div className="grid cards-grid">
+          {/* M-CHAT-R/F */}
+          <article className="card card--service">
+            <div className="card-icon">🧩</div>
+            <h3>M-CHAT-R/F</h3>
+            <p>
+              Triagem para crianças de 16 a 30 meses focada em atenção conjunta,
+              linguagem e comportamentos motores.
+            </p>
+            <div className="card-actions">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setOpenKey("mchat")}
+              >
+                Saiba mais
+              </button>
             </div>
-            <h3>{service.title}</h3>
-            <p style={{ margin: '1rem 0', lineHeight: 1.6 }}>{service.description}</p>
-            <a className="btn btn-primary" href={service.href}>
-              Saiba mais
-            </a>
           </article>
-        ))}
+
+          {/* ASSQ */}
+          <article className="card card--service">
+            <div className="card-icon">📋</div>
+            <h3>ASSQ</h3>
+            <p>
+              Questionário de triagem para crianças e adolescentes, voltadas a comportamento social e comunicação.
+            </p>
+            <div className="card-actions">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setOpenKey("assq")}
+              >
+                Saiba mais
+              </button>
+            </div>
+          </article>
+
+          {/* AQ-10 (Adultos) - agora só informativo que o foco são os 3 triagens */}
+          <article className="card card--service">
+            <div className="card-icon">🧠</div>
+            <h3>AQ-10</h3>
+            <p>
+              Versão curta do Autism-Spectrum Quotient para triagem de traços
+              autísticos em adultos.
+            </p>
+            <div className="card-actions">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setOpenKey("aq10")}
+              >
+                Saiba mais
+              </button>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <InfoModal
+        isOpen={Boolean(openKey)}
+        title={openKey ? TEST_INFO[openKey].title : ""}
+        onClose={() => setOpenKey(null)}
+      >
+        {openKey ? TEST_INFO[openKey].body : null}
+      </InfoModal>
+    </section>
+  );
+};
+
+const InfoModal = ({ isOpen, title, children, onClose }) => {
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const orig = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = orig;
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  const modalId = "info-modal-title";
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={modalId}
+      className="ui-modal"
+      onKeyDown={(e) => e.key === "Escape" && onClose()}
+    >
+      <div
+        className="ui-modal__backdrop"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div className="ui-modal__card" role="document">
+        <header className="ui-modal__header">
+          <h3 id={modalId} className="ui-modal__title">
+            {title}
+          </h3>
+        </header>
+
+        <div className="ui-modal__body prose">{children}</div>
+
+        <footer className="ui-modal__footer">
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={onClose}
+          >
+            Fechar
+          </button>
+        </footer>
       </div>
     </div>
-  </section>
-);
+  );
+};
 
 export const Process = () => (
   <section className="section" id="processo">
