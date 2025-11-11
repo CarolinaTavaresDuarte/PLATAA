@@ -294,6 +294,36 @@ header.sticky-nav {
   border: 1px solid rgba(0, 123, 255, 0.15);
 }
 
+/* Specialist dashboard layout: keep 4 cards in one row on wide screens */
+#dashboard-especialista .dashboard-grid {
+  gap: 1rem;
+}
+
+@media (min-width: 980px) {
+  #dashboard-especialista .dashboard-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+#dashboard-especialista .dashboard-card {
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Filter bar alignment and controls */
+#dashboard-especialista label {
+  font-weight: 600;
+}
+
+#dashboard-especialista select,
+#dashboard-especialista input[type="date"] {
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 0.75rem;
+}
+
 .test-view {
   max-width: 680px;
   margin: 0 auto;
@@ -608,4 +638,11 @@ header.sticky-nav {
   color: #fff;
   border-radius: 999px;
   padding: 0.25rem 0.75rem;
+}
+/* Ocultar filtros antigos não funcionais (região e risco antigos) */
+label[for="filtro-regiao"],
+#filtro-regiao,
+label[for="filtro-risco"],
+#filtro-risco {
+  display: none !important;
 }

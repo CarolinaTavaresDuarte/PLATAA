@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { useApi } from "../hooks/useApi";
 import { Header, Footer } from "../components/LandingSections";
 import { TestWizard } from "../components/TestWizard";
+import { BAIRROS_SP } from "../constants/bairrosSP";
 
 export default function Tests() {
   const { token, profile, setToken, setProfile } = useAuth();
@@ -38,6 +39,7 @@ export default function Tests() {
       Boolean(
         testadoForm.nome_completo &&
           testadoForm.documento_cpf &&
+          testadoForm.documento_cpf.length === 11 &&
           testadoForm.regiao_bairro &&
           testadoForm.contato_telefone &&
           testadoForm.contato_email
@@ -119,23 +121,32 @@ export default function Tests() {
                 <input
                   id="cpf-form"
                   type="text"
+                  inputMode="numeric"
+                  pattern="\\d{11}"
+                  maxLength={11}
+                  placeholder="Somente números (11 dígitos)"
                   value={testadoForm.documento_cpf}
                   onChange={(e) => {
-                    const value = e.target.value;
-                    setTestadoForm((p) => ({ ...p, documento_cpf: value }));
-                    setCpfSelecionado(value);
+                    // Mantém apenas dígitos e limita a 11
+                    const onlyDigits = (e.target.value || '').replace(/[^0-9]/g, '').slice(0, 11);
+                    setTestadoForm((p) => ({ ...p, documento_cpf: onlyDigits }));
+                    setCpfSelecionado(onlyDigits);
                   }}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="bairro">Região/Bairro</label>
-                <input
-                  id="bairro"
-                  type="text"
+                <label htmlFor="bairro-select">Região/Bairro (SP)</label>
+                <select
+                  id="bairro-select"
                   value={testadoForm.regiao_bairro}
                   onChange={(e) => setTestadoForm((p) => ({ ...p, regiao_bairro: e.target.value }))}
-                />
+                >
+                  <option value="">Selecione...</option>
+                  {BAIRROS_SP.map((b) => (
+                    <option key={b.value} value={b.value}>{b.label}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="form-group">
@@ -191,28 +202,32 @@ export default function Tests() {
               <div className="alert alert-success">Cadastro realizado com sucesso!</div>
             )}
             {registerTestado.isError && (
-              <div className="alert alert-error">Não foi possível cadastrar este CPF.</div>
+              <div className="alert alert-error">
+                {(() => {
+                  const err = registerTestado.error;
+                  const status = err?.response?.status;
+                  const serverDetail = err?.response?.data?.detail;
+                  if (status === 409 || /já cadastrado/i.test(String(serverDetail || ''))) return 'CPF já cadastrado.';
+                  if (status === 422) return 'Dados inválidos. Verifique CPF (11 dígitos), bairro, telefone e e-mail.';
+                  return serverDetail || 'Não foi possível cadastrar este CPF.';
+                })()}
+              </div>
             )}
           </div>
 
           {/* Card: selecionar cpf e iniciar */}
           <div className="card" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <div className="form-group">
-              <label htmlFor="cpf-testado">CPF do avaliado</label>
-              <input
-                id="cpf-testado"
-                type="text"
-                value={cpfSelecionado}
-                onChange={(e) => setCpfSelecionado(e.target.value)}
-                placeholder="000.000.000-00"
-              />
+              <label>CPF do avaliado</label>
+              <div style={{ fontWeight: 600 }}>{cpfSelecionado || '—'}</div>
+              <small style={{ color: '#6b7280' }}>O CPF é definido no cadastro acima.</small>
             </div>
 
             <button
               className="btn btn-primary"
               type="button"
               onClick={handleStartTest}
-              disabled={!cpfSelecionado}
+              disabled={!cpfSelecionado || cpfSelecionado.length !== 11}
             >
               Iniciar triagem
             </button>
