@@ -34,6 +34,22 @@ export default function Tests() {
     consentimento_pesquisa: false,
   });
 
+  // Helpers: máscaras visuais (mantemos apenas dígitos no estado)
+  const maskCPF = (value) => {
+    let v = (value || "").replace(/\D/g, "").slice(0, 11);
+    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+    v = v.replace(/(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+    v = v.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+    return v;
+  };
+
+  const maskPhone = (value) => {
+    let v = (value || "").replace(/\D/g, "").slice(0, 11);
+    v = v.replace(/(\d{2})(\d)/, "($1)$2"); // sem espaço para total 14 caracteres
+    v = v.replace(/(\(\d{2}\)\d{5})(\d)/, "$1-$2");
+    return v;
+  };
+
   const formComplete = useMemo(
     () =>
       Boolean(
@@ -124,9 +140,9 @@ export default function Tests() {
                   type="text"
                   inputMode="numeric"
                   pattern="\\d{11}"
-                  maxLength={11}
-                  placeholder="Somente números (11 dígitos)"
-                  value={testadoForm.documento_cpf}
+                  maxLength={14}
+                  placeholder="000.000.000-00"
+                  value={maskCPF(testadoForm.documento_cpf)}
                   onChange={(e) => {
                     // Mantém apenas dígitos e limita a 11
                     const onlyDigits = (e.target.value || '').replace(/[^0-9]/g, '').slice(0, 11);
@@ -157,9 +173,9 @@ export default function Tests() {
                   type="tel"
                   inputMode="numeric"
                   pattern="\\d{11}"
-                  maxLength={11}
-                  placeholder="Somente números (11 dígitos)"
-                  value={testadoForm.contato_telefone}
+                  maxLength={14}
+                  placeholder="(11)00000-0000"
+                  value={maskPhone(testadoForm.contato_telefone)}
                   onChange={(e) => {
                     const onlyDigits = (e.target.value || '').replace(/[^0-9]/g, '').slice(0, 11);
                     setTestadoForm((p) => ({ ...p, contato_telefone: onlyDigits }));
@@ -223,11 +239,11 @@ export default function Tests() {
 
           {/* Card: selecionar cpf e iniciar */}
           <div className="card" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <div className="form-group">
-              <label>CPF do avaliado</label>
-              <div style={{ fontWeight: 600 }}>{cpfSelecionado || '—'}</div>
-              <small style={{ color: '#6b7280' }}>O CPF é definido no cadastro acima.</small>
-            </div>
+              <div className="form-group">
+                <label>CPF do avaliado</label>
+                <div style={{ fontWeight: 600 }}>{maskCPF(cpfSelecionado) || '—'}</div>
+                <small style={{ color: '#6b7280' }}>O CPF é definido no cadastro acima.</small>
+              </div>
 
             <button
               className="btn btn-primary"
