@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     user_schema: str = Field("user_auth", env="USER_SCHEMA")
     specialist_schema: str = Field("specialist_auth", env="SPECIALIST_SCHEMA")
     tests_schema: str = Field("test_data", env="TESTS_SCHEMA")
+    ibge_data_schema: str = Field("ibge_data", env="IBGE_DATA_SCHEMA")
 
     # Auth/JWT
     jwt_secret_key: str = Field("super-secret-development-key", env="JWT_SECRET_KEY")

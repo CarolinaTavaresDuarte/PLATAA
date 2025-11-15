@@ -1,7 +1,8 @@
 from collections import Counter
 from typing import List
 
-from .schemas import TestResponseItem, TesteTipo
+from app.schemas import TestResponseItem, TesteTipo
+
 
 
 MCHAT_RISK_RULES = {

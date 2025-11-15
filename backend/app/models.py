@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy import (
     Boolean, CheckConstraint, Column, DateTime, Enum, ForeignKey,
-    Integer, JSON, String, Text, UniqueConstraint
+    Integer, JSON, String, Text, UniqueConstraint, Float
 )
 from sqlalchemy.orm import relationship
 from .config import get_settings
@@ -147,3 +147,15 @@ class ContactMessage(Base):
 
     usuario_id = Column(Integer, ForeignKey(f"{settings.user_schema}.usuarios.id", ondelete="SET NULL"), nullable=True)
     usuario = relationship("UserAccount", back_populates="contatos")
+
+# ===================== IBGE ESTATISTICAS INDÍGENAS =====================
+class IndigenousAutismStatistic(Base):
+    __tablename__ = "indigenous_autism_statistics"
+    __table_args__ = {"schema": settings.ibge_data_schema}
+
+    id = Column(Integer, primary_key=True, index=True)
+    location = Column(String(255), nullable=False)
+    indigenous_population = Column(Integer, nullable=False)
+    autism_count = Column(Integer, nullable=False)
+    autism_percentage = Column(Float, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

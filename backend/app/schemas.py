@@ -157,3 +157,18 @@ class PatientDashboardResponse(BaseModel):
     cpf: str
     cards: List[PatientDashboardCard]
     transparencia_ibge: List[str]
+
+class IndigenousAutismStatisticBase(BaseModel):
+    location: str
+    indigenous_population: int
+    autism_count: int
+    autism_percentage: float
+
+class IndigenousAutismStatisticCreate(IndigenousAutismStatisticBase):
+    pass
+
+class IndigenousAutismStatisticResponse(IndigenousAutismStatisticBase):
+    id: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

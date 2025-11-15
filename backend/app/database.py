@@ -50,7 +50,7 @@ def create_schemas() -> None:
         conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {settings.user_schema}"))
         conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {settings.specialist_schema}"))
         conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {settings.tests_schema}"))
-
+        conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {settings.ibge_data_schema}"))
 
 def create_all() -> None:
     """Cria schemas e todas as tabelas."""
