@@ -129,7 +129,7 @@ export default function BrazilMapD3({ ibgeData, geoData }) {
 
   return (
     <div style={{ margin: '20px auto', maxWidth: '800px' }}>
-      <h3 style={{ textAlign: 'center', marginBottom: '15px' }}>Percentual de Autismo Indígena por Localização (IBGE)</h3>
+      <h3 style={{ textAlign: 'center', marginBottom: '15px' }}>Percentual de Autismo na População Indígena por Localização (IBGE)</h3>
       <div style={{ border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden', position: 'relative' }}>
           <svg ref={svgRef} width="100%" height={height} viewBox={`0 0 ${width} ${height}`}></svg>
       </div>
