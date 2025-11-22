@@ -10,22 +10,21 @@ export const useApi = () => {
 
   const client = useMemo(() => {
     const instance = axios.create({
-      baseURL: API_BASE_URL
+      baseURL: API_BASE_URL,
+      // 1. ANEXA O TOKEN DIRETAMENTE NO CABEÇALHO NA CRIAÇÃO DA INSTÂNCIA
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '', 
+        'Content-Type': 'application/json',
+      },
     });
 
-    instance.interceptors.request.use((config) => {
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    });
-
+    // Removemos o interceptor, pois o useMemo já garante o token atualizado.
     return instance;
-  }, [token]);
+  }, [token]); // 2. A dependência [token] RECRIA a instância quando o token muda.
 
   return {
     get: async (url, config = {}) => {
-      const response = await client.get(url, config);
+     const response = await client.get(url, config);
       return response.data;
     },
     post: (url, data, config) => client.post(url, data, config),

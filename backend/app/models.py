@@ -289,3 +289,21 @@ class IBGEStudentAutism(Base):
     pct_indigena_15_17 = Column(Float)
     pct_indigena_18_24 = Column(Float)
     pct_indigena_25_mais = Column(Float)
+
+# ===================== IBGE ESTATISTICAS POPULAÇÃO RESIDENTE =====================
+class ResidentAutismStatistic(Base):
+    __tablename__ = "resident_autism_statistics"
+    __table_args__ = {"schema": settings.ibge_data_schema}
+
+    id = Column(Integer, primary_key=True, index=True)
+    location = Column(String(255), nullable=False)
+    total_residentes = Column(Integer, nullable=False)
+    total_residentes_homens = Column(Integer, nullable=False)
+    total_residentes_mulheres = Column(Integer, nullable=False)
+    total_residentes_autismo = Column(Integer, nullable=False)
+    total_residentes_homens_autismo = Column(Integer, nullable=False)
+    total_residentes_mulheres_autismo = Column(Integer, nullable=False)
+    porcentagem_homens_autismo = Column(Float, nullable=False)
+    porcentagem_mulheres_autismo = Column(Float, nullable=False)
+    porcentagem_total_autismo = Column(Float, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

@@ -9,6 +9,7 @@ from app.models import IBGEStudentAutism
 from app.schemas import IBGEStudentAutismByRaceResponse
 from app.schemas import IndigenousAutismStatisticResponse, IndigenousAutismSummary 
 from app.services.ibge_analytics import get_indigenous_autism_summary
+from app.services.ibge_resident_autism_sex import get_resident_gender_autism_distribution
 
 # Criação do roteador, definindo o prefixo da URL e as tags para o Swagger UI
 router = APIRouter(prefix="/api/v1/ibge", tags=["IBGE"])
@@ -41,3 +42,14 @@ def import_students_autism_by_race_route(db: Session = Depends(get_db)):
 def list_students_autism_by_race(db: Session = Depends(get_db)):
     return db.query(IBGEStudentAutism).all()
 
+@router.get("/resident_gender_distribution")
+def read_resident_gender_distribution(db: Session = Depends(get_db)):
+    """Busca a distribuição de autismo por sexo na população residente para o gráfico de pizza."""
+    
+    data = get_resident_gender_autism_distribution(db)
+    
+    if data is None:
+        # Se não houver dados, retorna uma resposta vazia ou 404 (aqui, retornamos um dicionário vazio)
+        return {} 
+        
+    return data
